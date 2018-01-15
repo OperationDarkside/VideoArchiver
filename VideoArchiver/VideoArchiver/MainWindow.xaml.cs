@@ -22,7 +22,7 @@ namespace VideoArchiver {
     public partial class MainWindow : Window {
 
         string[] filenames;
-        string targetpath;
+        string ffmpeg_path;
 
         public MainWindow() {
             InitializeComponent();
@@ -47,22 +47,47 @@ namespace VideoArchiver {
             System.Windows.Forms.FolderBrowserDialog fbd = new System.Windows.Forms.FolderBrowserDialog();
 
             if (fbd.ShowDialog() == System.Windows.Forms.DialogResult.OK) {
-                targetpath = fbd.SelectedPath;
-                tbTargetPath.Text = targetpath;
+                tbTargetPath.Text = fbd.SelectedPath;
             }
         }
 
-        private void btnArchive_Click(object sender, RoutedEventArgs e) {
-            foreach (string fullFilename in filenames) {
-                string filename = Path.GetFileName(fullFilename);
+        private async void btnArchive_Click(object sender, RoutedEventArgs e) {
+            if (filenames == null) {
+                MessageBox.Show("No filenames!");
+            }
+            if (tbTargetPath.Text == null) {
+                MessageBox.Show("No target path!");
+            }
+            if (ffmpeg_path == null) {
+                MessageBox.Show("No ffmpeg path!");
+            }
 
-                Process process = new Process {
-                    StartInfo = new ProcessStartInfo {
-                        FileName = "ffmpeg.exe -i \"" + fullFilename + "\" \"" + targetpath + Path.DirectorySeparatorChar + filename + "\""
-                    }
-                };
-                process.Start();
-                process.WaitForExit();
+            string targetpath = tbTargetPath.Text;
+
+             await Task.Run(() => {
+                foreach (string fullFilename in filenames) {
+                    string filename = Path.GetFileName(fullFilename);
+
+                    Process process = new Process {
+                        StartInfo = new ProcessStartInfo {
+                            FileName = ffmpeg_path,
+                            Arguments = "-i \"" + fullFilename + "\" \"" + targetpath + Path.DirectorySeparatorChar + filename + "\""
+                        }
+                    };
+                    process.Start();
+                    process.WaitForExit();
+                }
+            }
+            );
+        }
+
+        private void btnFFMPEG_Click(object sender, RoutedEventArgs e) {
+            OpenFileDialog ofd = new OpenFileDialog();
+            ofd.Multiselect = true;
+
+            if (ofd.ShowDialog().Value) {
+                ffmpeg_path = ofd.FileName;
+                label.Content = ffmpeg_path;
             }
         }
     }
