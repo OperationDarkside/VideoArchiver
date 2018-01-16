@@ -10,7 +10,7 @@ For maximum quality I record and upload Youtube videos with high bitrates, so Yo
 2. Select some video files
 3. Select a target path
 4. Press "Archive"
-5...
+5. ...
 6. Profit
 
 ## Any ideas?
